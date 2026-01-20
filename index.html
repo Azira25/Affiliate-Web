@@ -23,7 +23,7 @@
 
     <!-- LOAD CONFIG EXTERNAL (Wajib untuk Login) -->
     <!-- Jika di local, pastikan file config.js ada. Jika di Vercel, pastikan Build Command sudah benar. -->
-    <script src="config.js"></script>
+    <script src="config.js" onerror="console.error('Gagal memuat config.js. Pastikan file ini ada.');"></script>
 
     <script>
         tailwind.config = {
@@ -408,7 +408,8 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            const pass = document.getElementById('passcode').value;
+            // PERBAIKAN: Trim() menghapus spasi di depan/belakang yang sering terjadi di HP
+            const pass = document.getElementById('passcode').value.trim();
             
             // SECURITY UPDATE: Memastikan ADMIN_CONFIG ada (dari config.js)
             if (typeof ADMIN_CONFIG === 'undefined') {
@@ -417,16 +418,18 @@
                 return;
             }
 
-            // Hanya menggunakan password dari config.js
-            const correctPass = ADMIN_CONFIG.password;
+            // PERBAIKAN: Ubah config password ke string dan trim juga untuk memastikan kecocokan
+            const correctPass = String(ADMIN_CONFIG.password).trim();
 
             if (pass === correctPass) {
                 enableAdminMode();
                 closeLoginModal();
                 showToast("Login Berhasil", "success");
                 localStorage.setItem('isAdmin', 'true');
+                document.getElementById('passcode').value = ''; // Reset input agar aman
             } else {
                 showToast("Password salah!", "error");
+                console.log("Input (Trimmed):", pass); // Debug untuk melihat apa yang sebenarnya diketik
             }
         }
 
